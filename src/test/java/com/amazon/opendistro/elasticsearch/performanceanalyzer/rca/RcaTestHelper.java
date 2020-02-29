@@ -15,6 +15,8 @@
 
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca;
 
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.ConnectedComponent;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.Node;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -94,6 +96,15 @@ public class RcaTestHelper {
       truncate(Paths.get(getLogFilePath("StatsLog")).toFile());
     } catch (ParserConfigurationException | SAXException | XPathExpressionException | IOException e) {
       e.printStackTrace();
+    }
+  }
+
+  public static void setEvaluationTimeForAllNodes(List<ConnectedComponent> connectedComponents,
+                                                  long val) {
+    for (ConnectedComponent connectedComponent: connectedComponents) {
+      for (Node node: connectedComponent.getAllNodes()) {
+        node.setEvaluationIntervalSeconds(val);
+      }
     }
   }
 

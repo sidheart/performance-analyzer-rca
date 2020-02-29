@@ -218,6 +218,7 @@ public class PerformanceAnalyzerApp {
       server.start();
       return server;
     } catch (java.net.BindException ex) {
+      LOG.error("ERR: Could not connect to port: {}. Exiting ..", internalPort);
       Runtime.getRuntime().halt(1);
     } catch (Exception ex) {
       ex.printStackTrace();
