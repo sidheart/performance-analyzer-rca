@@ -15,8 +15,10 @@
 
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.capacity;
 
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.TemperatureVector;
+
 public class NodeLevelUsageForHeapAlloc extends NodeLevelUsageForResourceType {
     public NodeLevelUsageForHeapAlloc() {
-        super(PyrometerMetricType.HeapAllocRate);
+        super(TemperatureVector.Dimension.HeapAllocRate);
     }
 }

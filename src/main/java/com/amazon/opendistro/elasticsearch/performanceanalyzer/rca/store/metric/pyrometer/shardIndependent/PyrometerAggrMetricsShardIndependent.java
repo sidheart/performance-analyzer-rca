@@ -16,8 +16,8 @@
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.shardIndependent;
 
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.metrics.AllMetrics;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.TemperatureVector;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.PyrometerAggrMetrics;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.byShard.SumOverOperationsForIndexShardGroup;
 import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -53,7 +53,7 @@ public class PyrometerAggrMetricsShardIndependent extends PyrometerAggrMetrics {
             AllMetrics.CommonDimension.OPERATION.toString()
     };
 
-    public PyrometerAggrMetricsShardIndependent(SumOverOperationsForIndexShardGroup.PyrometerMetricType metricType) {
+    public PyrometerAggrMetricsShardIndependent(TemperatureVector.Dimension metricType) {
         super(metricType, dimensions);
     }
 

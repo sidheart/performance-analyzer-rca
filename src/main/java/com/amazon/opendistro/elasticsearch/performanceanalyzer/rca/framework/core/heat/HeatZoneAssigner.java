@@ -26,18 +26,18 @@ public class HeatZoneAssigner {
         COLD
     }
 
-    public static Zone assign(final HeatPointSystem consumed, final HeatPointSystem nodeAvg,
-                              final HeatPointSystem threshold) {
+    public static Zone assign(final TemperatureVector.NormalizedValue consumed, final TemperatureVector.NormalizedValue nodeAvg,
+                              final TemperatureVector.NormalizedValue threshold) {
         Zone zone;
         if (consumed.isGreaterThan(nodeAvg)) {
-            HeatPointSystem deviation = new HeatPointSystem(consumed.diff(nodeAvg));
+            TemperatureVector.NormalizedValue deviation = consumed.diff(nodeAvg);
             if (deviation.isGreaterThan(threshold)) {
                 zone = Zone.HOT;
             } else {
                 zone = Zone.WARM;
             }
         } else {
-            HeatPointSystem deviation = new HeatPointSystem(nodeAvg.diff(consumed));
+            TemperatureVector.NormalizedValue deviation = nodeAvg.diff(consumed);
             if (deviation.isGreaterThan(threshold)) {
                 zone = Zone.COLD;
             } else {

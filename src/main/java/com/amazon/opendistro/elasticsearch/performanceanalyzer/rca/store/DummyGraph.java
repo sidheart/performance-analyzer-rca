@@ -15,6 +15,8 @@
 
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store;
 
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.summaries.pyrometer.DimensionHeatFlowUnit;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.ShardStore;
 import static com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.util.RcaConsts.RcaTagConstants.LOCUS_DATA_MASTER_NODE;
 import static com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.util.RcaConsts.RcaTagConstants.LOCUS_DATA_NODE;
 import static com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.util.RcaConsts.RcaTagConstants.LOCUS_MASTER_NODE;
@@ -38,6 +40,7 @@ import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.rca.Hot
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.rca.hotheap.HighHeapUsageOldGenRca;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.rca.hotheap.HighHeapUsageYoungGenRca;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.rca.pyrometer.CpuUtilHeatRca;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.rca.pyrometer.NodeHeatRca;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -82,6 +85,8 @@ public class DummyGraph extends AnalysisGraph {
     }
 
     protected void constructResourceHeatMapGraph() {
+        ShardStore shardStore = new ShardStore();
+
         CpuUtilByShard cpuUtilByShard = new CpuUtilByShard();
         AvgCpuUtilByShards avgCpuUtilByShards = new AvgCpuUtilByShards();
         CpuUtilShardIndependent cpuUtilShardIndependent = new CpuUtilShardIndependent();
@@ -98,10 +103,15 @@ public class DummyGraph extends AnalysisGraph {
         addLeaf(cpuUtilShardIndependent);
         addLeaf(cpuUtilPeakUsage);
 
-        Rca<ResourceFlowUnit> cpuUtilHeat = new CpuUtilHeatRca(cpuUtilByShard, avgCpuUtilByShards,
+        CpuUtilHeatRca cpuUtilHeat = new CpuUtilHeatRca(shardStore, cpuUtilByShard,
+                avgCpuUtilByShards,
                 cpuUtilShardIndependent, cpuUtilPeakUsage);
         cpuUtilHeat.addTag(TAG_LOCUS, LOCUS_DATA_NODE);
         cpuUtilHeat.addAllUpstreams(Arrays.asList(cpuUtilByShard, avgCpuUtilByShards,
                 cpuUtilShardIndependent, cpuUtilPeakUsage));
+
+        NodeHeatRca nodeHeatRca = new NodeHeatRca(cpuUtilHeat);
+        nodeHeatRca.addTag(TAG_LOCUS, LOCUS_DATA_NODE);
+        nodeHeatRca.addAllUpstreams(Arrays.asList(cpuUtilHeat));
     }
 }

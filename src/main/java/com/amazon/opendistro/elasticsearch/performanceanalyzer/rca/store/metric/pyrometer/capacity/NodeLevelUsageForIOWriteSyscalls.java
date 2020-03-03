@@ -15,8 +15,10 @@
 
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.capacity;
 
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.TemperatureVector;
+
 public class NodeLevelUsageForIOWriteSyscalls extends NodeLevelUsageForResourceType {
     public NodeLevelUsageForIOWriteSyscalls() {
-        super(PyrometerMetricType.IOWriteSysCallsRate);
+        super(TemperatureVector.Dimension.IOWriteSysCallsRate);
     }
 }

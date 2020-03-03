@@ -15,9 +15,11 @@
 
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.capacity;
 
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.TemperatureVector;
+
 public class NodeLevelUsageForCpu extends NodeLevelUsageForResourceType {
 
     public NodeLevelUsageForCpu() {
-        super(PyrometerMetricType.CpuUtil);
+        super(TemperatureVector.Dimension.CpuUtil);
     }
 }

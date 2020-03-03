@@ -15,8 +15,10 @@
 
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.byShard;
 
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.TemperatureVector;
+
 public class IOWriteSyscallsByShard extends SumOverOperationsForIndexShardGroup {
     public IOWriteSyscallsByShard() {
-        super(PyrometerMetricType.IOWriteSysCallsRate);
+        super(TemperatureVector.Dimension.IOWriteSysCallsRate);
     }
 }

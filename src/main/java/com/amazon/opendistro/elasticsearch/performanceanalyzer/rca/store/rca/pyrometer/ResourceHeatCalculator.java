@@ -16,22 +16,33 @@
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.rca.pyrometer;
 
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.flow_units.MetricFlowUnit;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.summaries.temperatureProfile.NodeSummaryForAResourceType;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.summaries.temperatureProfile.Shard;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.HeatPointSystem;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.summaries.pyrometer.DimensionHeatFlowUnit;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.HeatZoneAssigner;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.NormalizedConsumption;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.PyrometerAggrMetrics;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.ShardStore;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.TemperatureVector;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.profile.level.NodeDimensionProfile;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.profile.level.ShardProfile;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.byShard.AvgResourceUsageAcrossAllIndexShardGroups;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.byShard.SumOverOperationsForIndexShardGroup;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.capacity.NodeLevelUsageForResourceType;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.shardIndependent.PyrometerAggrMetricsShardIndependent;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ResourceHeatCalculator {
     private static final Logger LOG = LogManager.getLogger(ResourceHeatCalculator.class);
+
+    enum ColumnTypes {
+        IndexName,
+        ShardID,
+        sum;
+    }
+
+    ;
 
     /**
      * The categorization of shards as hot, warm, lukeWarm and cold based on the average resource
@@ -51,12 +62,13 @@ public class ResourceHeatCalculator {
      *                                 should be the sum of the other two.
      * @return The return is a composition of three things:
      */
-    public static NodeSummaryForAResourceType getResourceHeat(PyrometerAggrMetrics.PyrometerMetricType metricType,
-                                                              SumOverOperationsForIndexShardGroup resourceByShardId,
-                                                              AvgResourceUsageAcrossAllIndexShardGroups avgResUsageByAllShards,
-                                                              PyrometerAggrMetricsShardIndependent resourceShardIndependent,
-                                                              NodeLevelUsageForResourceType resourcePeakUsage,
-                                                              HeatPointSystem threshold) {
+    public static DimensionHeatFlowUnit getResourceHeat(
+            ShardStore shardStore, TemperatureVector.Dimension metricType,
+            SumOverOperationsForIndexShardGroup resourceByShardId,
+            AvgResourceUsageAcrossAllIndexShardGroups avgResUsageByAllShards,
+            PyrometerAggrMetricsShardIndependent resourceShardIndependent,
+            NodeLevelUsageForResourceType resourcePeakUsage,
+            TemperatureVector.NormalizedValue threshold) {
         List<MetricFlowUnit> shardIdBasedFlowUnits = resourceByShardId.getFlowUnits();
         List<MetricFlowUnit> avgResUsageFlowUnits = avgResUsageByAllShards.getFlowUnits();
         List<MetricFlowUnit> shardIdIndependentFlowUnits = resourceShardIndependent.getFlowUnits();
@@ -78,64 +90,73 @@ public class ResourceHeatCalculator {
         if (resourcePeakFlowUnits.size() != 1 || resourcePeakFlowUnits.get(0).getData().size() != 2) {
             throw new IllegalArgumentException("Size more than expected: " + resourcePeakFlowUnits);
         }
+
         double avgValOverShards =
                 parseDoubleValue(avgResUsageFlowUnits.get(0).getData().get(1).get(0),
                         "AverageResourceUsageAcrossShards");
         double totalConsumedInNode =
                 parseDoubleValue(resourcePeakFlowUnits.get(0).getData().get(1).get(0),
                         "totalResourceConsumed");
-        HeatPointSystem avgUsageAcrossShards =
+        TemperatureVector.NormalizedValue avgUsageAcrossShards =
                 NormalizedConsumption.calculate(avgValOverShards, totalConsumedInNode);
 
         List<List<String>> rowsPerShard = shardIdBasedFlowUnits.get(0).getData();
 
-        NodeSummaryForAResourceType nodeSummaryForAResourceType =
-                new NodeSummaryForAResourceType(avgUsageAcrossShards, threshold, totalConsumedInNode, metricType);
+        NodeDimensionProfile nodeDimensionProfile =
+                new NodeDimensionProfile(metricType, avgUsageAcrossShards, totalConsumedInNode);
+
+        // The shardIdBasedFlowUnits is supposed to contain one row per shard.
+        nodeDimensionProfile.setNumberOfShards(rowsPerShard.size());
+
+        Map<ColumnTypes, Integer> columnTypesToColIndexMap = new HashMap<>();
 
         for (int i = 0; i < rowsPerShard.size(); i++) {
             if (i == 0) {
+                List<String> colNames = rowsPerShard.get(0);
+                int length = colNames.size();
+                for (int colIdx = 0; colIdx < length; colIdx++) {
+                    // This can throw IllegalArgument execption but we don't want to catch it
+                    // here. That means the name of the column has changed in which case the enum
+                    // must be changed accordingly.
+                    columnTypesToColIndexMap.put(ColumnTypes.valueOf(colNames.get(colIdx)), colIdx);
+                }
+                // Row 0 is the column names. So, we skip it. Actual data starts from row 1.
                 continue;
             }
+
+            List<String> currRow = rowsPerShard.get(i);
             // Each row has columns like:
             // IndexName, ShardID, sum
-            String indexName = rowsPerShard.get(i).get(0);
+            String indexName = currRow.get(columnTypesToColIndexMap.get(ColumnTypes.IndexName));
             int shardId;
             try {
-                shardId = Integer.parseInt(rowsPerShard.get(i).get(1));
+                int shardIdIndex = columnTypesToColIndexMap.get(ColumnTypes.ShardID);
+                String shardIdString = currRow.get(shardIdIndex);
+                shardId = Integer.parseInt(shardIdString);
             } catch (NumberFormatException ex) {
+                LOG.error("Could not parse the shardId into int for row: {}. Skipping..", currRow);
                 continue;
             }
 
-            String err = String.format("index:%s, shard:%s, value:%s", indexName, shardId,
-                    rowsPerShard.get(i).get(2));
-
             try {
-                double usage = parseDoubleValue(rowsPerShard.get(i).get(2), err);
-                HeatPointSystem normalizedConsumptionByShard =
+                int sumIndex = columnTypesToColIndexMap.get(ColumnTypes.sum);
+                String sumString = currRow.get(sumIndex);
+                String err = String.format("index:%s, shard:%s, value:%s", indexName, shardId, sumString);
+                double usage = parseDoubleValue(sumString, err);
+
+                TemperatureVector.NormalizedValue normalizedConsumptionByShard =
                         NormalizedConsumption.calculate(usage, totalConsumedInNode);
                 HeatZoneAssigner.Zone heatZoneForShard = HeatZoneAssigner.assign(normalizedConsumptionByShard, avgUsageAcrossShards,
                         threshold);
-                Shard shard = new Shard(indexName, shardId, normalizedConsumptionByShard);
-                switch (heatZoneForShard) {
-                    case HOT:
-                        nodeSummaryForAResourceType.getHotZoneSummary().addShard(shard);
-                        break;
-                    case WARM:
-                        nodeSummaryForAResourceType.getWarmZoneSummary().addShard(shard);
-                        break;
-                    case LUKE_WARM:
-                        nodeSummaryForAResourceType.getLukeWarmZoneSummary().addShard(shard);
-                        break;
-                    case COLD:
-                        nodeSummaryForAResourceType.getColdZoneSummary().addShard(shard);
-                        break;
-                }
+
+                ShardProfile shardProfile = shardStore.getOrCreateIfAbsent(indexName, shardId);
+                shardProfile.addTemperatureForDimension(metricType, normalizedConsumptionByShard);
+                nodeDimensionProfile.addShardToZone(shardProfile, heatZoneForShard);
             } catch (NumberFormatException ex) {
                 continue;
             }
         }
-
-        return nodeSummaryForAResourceType;
+        return new DimensionHeatFlowUnit(System.currentTimeMillis(), nodeDimensionProfile);
     }
 
     private static double parseDoubleValue(String val, String identifier) {

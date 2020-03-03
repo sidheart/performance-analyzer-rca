@@ -30,7 +30,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class SumOverOperationsForIndexShardGroupTest {
+public class SumOverOperationsForIndexShardProfileGroupTest {
 
     @Test
     public void readCPU() throws SQLException {

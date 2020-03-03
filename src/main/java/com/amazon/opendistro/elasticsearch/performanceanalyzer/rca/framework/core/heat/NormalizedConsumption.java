@@ -21,7 +21,7 @@ package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.co
  * Temperature is calculated by determining what parts of 10 is consumed by the resource.
  */
 public class NormalizedConsumption {
-    public static HeatPointSystem calculate(double consumedByCandidate, double totalConsumption) {
-        return new HeatPointSystem((short) (consumedByCandidate * 10 / totalConsumption));
+    public static TemperatureVector.NormalizedValue calculate(double consumedByCandidate, double totalConsumption) {
+        return new TemperatureVector.NormalizedValue((short) (consumedByCandidate * 10 / totalConsumption));
     }
 }

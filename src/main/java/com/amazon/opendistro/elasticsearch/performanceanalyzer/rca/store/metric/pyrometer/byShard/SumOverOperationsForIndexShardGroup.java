@@ -16,6 +16,7 @@
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.byShard;
 
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.metrics.AllMetrics;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.TemperatureVector;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.PyrometerAggrMetrics;
 import java.util.List;
 import org.jooq.DSLContext;
@@ -38,7 +39,7 @@ public class SumOverOperationsForIndexShardGroup extends PyrometerAggrMetrics {
             AllMetrics.CommonDimension.SHARD_ID.toString()
     };
 
-    public SumOverOperationsForIndexShardGroup(PyrometerMetricType metricType) {
+    public SumOverOperationsForIndexShardGroup(TemperatureVector.Dimension metricType) {
         // The pyrometer intendeds to spread the heat around the cluster by re-allocating shards
         // from the hottest of nodes to the nodes that are relatively cold (with some randomness
         // so that it does not overwhelm the coldest node). Pyrometer also wants to size for peak

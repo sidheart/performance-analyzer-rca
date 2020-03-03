@@ -15,14 +15,13 @@
 
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.capacity;
 
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.TemperatureVector;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.PyrometerAggrMetrics;
-import java.util.ArrayList;
 import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.Result;
-import org.jooq.impl.DSL;
 
 /**
  * This class gets all rows for the given metric table where the shardID is not NULL. This is to
@@ -33,7 +32,7 @@ public class NodeLevelUsageForResourceType extends PyrometerAggrMetrics {
     // For peak usage there is no group by clause used, therefore this is empty.
     private static final String[] dimensions = {};
 
-    public NodeLevelUsageForResourceType(PyrometerMetricType metricType) {
+    public NodeLevelUsageForResourceType(TemperatureVector.Dimension metricType) {
         super(metricType, dimensions);
     }
 

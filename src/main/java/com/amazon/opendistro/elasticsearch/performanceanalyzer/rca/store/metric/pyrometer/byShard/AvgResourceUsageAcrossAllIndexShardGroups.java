@@ -15,12 +15,12 @@
 
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.byShard;
 
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.TemperatureVector;
 import java.util.List;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.Result;
-import org.jooq.SelectHavingStep;
 import org.jooq.SelectSeekStep1;
 import org.jooq.impl.DSL;
 
@@ -29,7 +29,7 @@ import org.jooq.impl.DSL;
  * It calculates the average over all index,shard groups.
  */
 public class AvgResourceUsageAcrossAllIndexShardGroups extends SumOverOperationsForIndexShardGroup {
-    public AvgResourceUsageAcrossAllIndexShardGroups(PyrometerMetricType metricType) {
+    public AvgResourceUsageAcrossAllIndexShardGroups(TemperatureVector.Dimension metricType) {
         super(metricType);
     }
 

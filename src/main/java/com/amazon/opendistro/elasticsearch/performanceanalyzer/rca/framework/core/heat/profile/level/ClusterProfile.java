@@ -13,22 +13,7 @@
  *  permissions and limitations under the License.
  */
 
-package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.summaries.temperatureProfile;
+package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.profile.level;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class OverallNodeSummary {
-    private final List<NodeSummaryForAResourceType> summaryOverAllResources;
-
-    public OverallNodeSummary() {
-        summaryOverAllResources = new ArrayList<>();
-    }
-
-    @Override
-    public String toString() {
-        return "OverallNodeSummary{"
-                + "summaryOverAllResources=" + summaryOverAllResources
-                + '}';
-    }
+public class ClusterProfile {
 }

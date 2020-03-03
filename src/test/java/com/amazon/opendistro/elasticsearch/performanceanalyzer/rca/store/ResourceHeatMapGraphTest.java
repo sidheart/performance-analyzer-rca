@@ -15,15 +15,20 @@
 
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store;
 
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.RcaTestHelper;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.exceptions.MalformedConfig;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.AnalysisGraph;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.ConnectedComponent;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.Queryable;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.RcaConf;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.util.RcaConsts;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.util.RcaUtil;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.persistence.Persistable;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.persistence.PersistenceFactory;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.scheduler.RCASchedulerTask;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.util.SQLiteReader;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
@@ -47,7 +52,20 @@ public class ResourceHeatMapGraphTest {
                 "metricsdb_1582865425000");
         static Queryable reader;
 
+        static RcaConf rcaConf =
+                new RcaConf(Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca.conf").toString());
+        static Persistable persistable;
+
         static {
+            try {
+                persistable = PersistenceFactory.create(rcaConf);
+            } catch (MalformedConfig malformedConfig) {
+                malformedConfig.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             try {
                 reader = new SQLiteReader(sqliteFile.toString());
             } catch (SQLException e) {
@@ -61,7 +79,7 @@ public class ResourceHeatMapGraphTest {
                     Executors.newFixedThreadPool(THREADS),
                     connectedComponents,
                     reader,
-                    null,
+                    persistable,
                     new RcaConf(Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca.conf").toString()),
                     null);
         }
@@ -75,6 +93,8 @@ public class ResourceHeatMapGraphTest {
         RcaTestHelper.setEvaluationTimeForAllNodes(connectedComponents, 1);
 
         RCASchedulerTask rcaSchedulerTask = new ResourceHeatMapGraphTest.RcaSchedulerTaskT(connectedComponents);
+        AllMetrics.NodeRole nodeRole = AllMetrics.NodeRole.DATA;
+        RcaTestHelper.setMyIp("192.168.0.1", nodeRole);
         rcaSchedulerTask.run();
     }
 }

@@ -15,8 +15,10 @@
 
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.byShard;
 
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.TemperatureVector;
+
 public class HeapAllocByShard extends SumOverOperationsForIndexShardGroup {
     public HeapAllocByShard() {
-        super(PyrometerMetricType.HeapAllocRate);
+        super(TemperatureVector.Dimension.HeapAllocRate);
     }
 }

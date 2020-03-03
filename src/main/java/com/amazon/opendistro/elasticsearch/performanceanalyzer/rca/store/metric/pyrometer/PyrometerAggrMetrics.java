@@ -17,12 +17,8 @@ package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric
 
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.metrics.MetricsConfiguration;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.metricsdb.MetricsDB;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.metrics.CPU_Utilization;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.metrics.Heap_AllocRate;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.metrics.IO_ReadSyscallRate;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.metrics.IO_WriteSyscallRate;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.TemperatureVector;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.AggregateMetric;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.byShard.SumOverOperationsForIndexShardGroup;
 import java.util.Arrays;
 import java.util.List;
 import org.jooq.DSLContext;
@@ -32,18 +28,6 @@ import org.jooq.Result;
 import org.jooq.impl.DSL;
 
 public abstract class PyrometerAggrMetrics extends AggregateMetric {
-    public enum PyrometerMetricType {
-        CpuUtil(CPU_Utilization.NAME),
-        HeapAllocRate(Heap_AllocRate.NAME),
-        IOReadSysCallsRate(IO_ReadSyscallRate.NAME),
-        IOWriteSysCallsRate(IO_WriteSyscallRate.NAME);
-
-        public final String NAME;
-
-        PyrometerMetricType(String name) {
-            this.NAME = name;
-        }
-    }
 
     /**
      * Metrics are gathered each time they are sampled by the reader. Although the reader polls
@@ -64,7 +48,7 @@ public abstract class PyrometerAggrMetrics extends AggregateMetric {
      */
     public static final AggregateFunction AGGR_TYPE_OVER_METRICS_DB_COLUMN = AggregateFunction.SUM;
 
-    public PyrometerAggrMetrics(SumOverOperationsForIndexShardGroup.PyrometerMetricType metricType,
+    public PyrometerAggrMetrics(TemperatureVector.Dimension metricType,
                                 String[] groupByDimensions) {
         // The pyrometer intendeds to spread the heat around the cluster by re-allocating shards
         // from the hottest of nodes to the nodes that are relatively cold (with some randomness

@@ -15,8 +15,10 @@
 
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.shardIndependent;
 
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.TemperatureVector;
+
 public class IOWriteSyscallsShardIndependent extends PyrometerAggrMetricsShardIndependent {
     public IOWriteSyscallsShardIndependent() {
-        super(PyrometerMetricType.IOWriteSysCallsRate);
+        super(TemperatureVector.Dimension.IOWriteSysCallsRate);
     }
 }
