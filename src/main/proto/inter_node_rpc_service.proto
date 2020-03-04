@@ -110,6 +110,8 @@ message HotClusterSummaryMessage {
 
 message ResourceTemperatureMessage {
     string resourceName = 1;
+    // The mean usage is the mean over all shards. There is also a shard independent component
+    // that is accounted for in the hte totalUsage
     int32 meanUsage = 2;
     int32 numberOfShards = 3;
     double totalUsage = 4;

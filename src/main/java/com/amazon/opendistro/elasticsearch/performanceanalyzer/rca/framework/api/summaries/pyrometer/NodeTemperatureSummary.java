@@ -50,10 +50,42 @@ public class NodeTemperatureSummary extends GenericSummary {
         this.totalConsumedByDimension = new double[TemperatureVector.Dimension.values().length];
         this.numOfShards = new int[TemperatureVector.Dimension.values().length];
         for (NodeDimensionProfile nodeDimensionProfile : nodeProfile.getNodeDimensionProfiles()) {
-            int index = nodeDimensionProfile.getProfileForDimension().ordinal();
-            totalConsumedByDimension[index] = nodeDimensionProfile.getTotalUsage();
-            numOfShards[index] = nodeDimensionProfile.getNumberOfShards();
+            if (nodeDimensionProfile != null) {
+                int index = nodeDimensionProfile.getProfileForDimension().ordinal();
+                totalConsumedByDimension[index] = nodeDimensionProfile.getTotalUsage();
+                numOfShards[index] = nodeDimensionProfile.getNumberOfShards();
+            }
         }
+    }
+
+    public double getTotalConsumedByDimension(TemperatureVector.Dimension dimension) {
+        return totalConsumedByDimension[dimension.ordinal()];
+    }
+
+    public String getHostAddress() {
+        return hostAddress;
+    }
+
+    public void setTotalConsumedByDimension(TemperatureVector.Dimension dimension,
+                                            double totalConsumedByDimension) {
+        this.totalConsumedByDimension[dimension.ordinal()] = totalConsumedByDimension;
+    }
+
+    public void setNumOfShards(TemperatureVector.Dimension dimension, int numOfShards) {
+        this.numOfShards[dimension.ordinal()] = numOfShards;
+    }
+
+    public int  getNumberOfShardsByDimension(TemperatureVector.Dimension dimension) {
+        return numOfShards[dimension.ordinal()];
+    }
+
+    public void setTemperatureForDimension(TemperatureVector.Dimension dimension,
+                                           TemperatureVector.NormalizedValue value) {
+        temperatureVector.updateTemperatureForDimension(dimension, value);
+    }
+
+    public String getNodeId() {
+        return nodeId;
     }
 
     @Override

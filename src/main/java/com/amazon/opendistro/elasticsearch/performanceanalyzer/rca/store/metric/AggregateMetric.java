@@ -45,7 +45,6 @@ import org.jooq.impl.DSL;
 public class AggregateMetric extends Metric {
 
     private static final Logger LOG = LogManager.getLogger(AggregateMetric.class);
-    public static final String NAME = AggregateMetric.class.getSimpleName();
     private final String tableName;
     private final List<String> groupByFieldsName;
     private final AggregateFunction aggregateFunction;
@@ -54,7 +53,7 @@ public class AggregateMetric extends Metric {
     public AggregateMetric(final long evaluationIntervalSeconds, final String tableName,
                            final AggregateFunction aggregateFunction,
                            String metricsDBCol, final String... groupByFieldsName) {
-        super(AggregateMetric.NAME, evaluationIntervalSeconds);
+        super("", evaluationIntervalSeconds);
         this.tableName = tableName;
         this.groupByFieldsName = new ArrayList<>(Arrays.asList(groupByFieldsName));
         this.aggregateFunction = aggregateFunction;

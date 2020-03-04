@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 
 public class TemperatureVector {
     public enum Dimension {
-        ShardIndependent("ShardIndependent"),
         CpuUtil(CPU_Utilization.NAME),
         HeapAllocRate(Heap_AllocRate.NAME),
         IOReadSysCallsRate(IO_ReadSyscallRate.NAME),

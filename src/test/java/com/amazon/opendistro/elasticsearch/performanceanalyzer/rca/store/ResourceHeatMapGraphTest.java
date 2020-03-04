@@ -15,7 +15,10 @@
 
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store;
 
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.ClientServers;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.PerformanceAnalyzerApp;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.metrics.AllMetrics;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.net.GRPCConnectionManager;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.RcaTestHelper;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.exceptions.MalformedConfig;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.AnalysisGraph;
@@ -24,6 +27,10 @@ import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.cor
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.RcaConf;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.util.RcaConsts;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.util.RcaUtil;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.net.NodeStateManager;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.net.ReceivedFlowUnitStore;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.net.SubscriptionManager;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.net.WireHopper;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.persistence.Persistable;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.persistence.PersistenceFactory;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.scheduler.RCASchedulerTask;
@@ -33,7 +40,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 
 public class ResourceHeatMapGraphTest {
@@ -55,6 +64,10 @@ public class ResourceHeatMapGraphTest {
         static RcaConf rcaConf =
                 new RcaConf(Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca.conf").toString());
         static Persistable persistable;
+        static ClientServers clientServers = PerformanceAnalyzerApp.startServers();
+        static SubscriptionManager subscriptionManager =
+                new SubscriptionManager(new GRPCConnectionManager(false));
+        static AtomicReference<ExecutorService> networkThreadPoolReference = new AtomicReference<>();
 
         static {
             try {
@@ -73,28 +86,55 @@ public class ResourceHeatMapGraphTest {
             }
         }
 
-        public RcaSchedulerTaskT(List<ConnectedComponent> connectedComponents) {
+        public RcaSchedulerTaskT(List<ConnectedComponent> connectedComponents, RcaConf rcaConf,
+                                 SubscriptionManager subscriptionManager) {
             super(
                     1000,
                     Executors.newFixedThreadPool(THREADS),
                     connectedComponents,
                     reader,
                     persistable,
-                    new RcaConf(Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca.conf").toString()),
-                    null);
+                    rcaConf,
+                    new WireHopper(new NodeStateManager(), clientServers.getNetClient(),
+                            subscriptionManager,
+                            networkThreadPoolReference,
+                            new ReceivedFlowUnitStore(rcaConf.getPerVertexBufferLength())));
         }
     }
 
     @Test
-    public void constructResourceHeatMapGraph() throws Exception {
+    public void constructResourceHeatMapGraph() {
         AnalysisGraph analysisGraph = new ResourceHeatMapGraphTest.AnalysisGraphTest();
         List<ConnectedComponent> connectedComponents =
                 RcaUtil.getAnalysisGraphComponents(analysisGraph);
         RcaTestHelper.setEvaluationTimeForAllNodes(connectedComponents, 1);
 
-        RCASchedulerTask rcaSchedulerTask = new ResourceHeatMapGraphTest.RcaSchedulerTaskT(connectedComponents);
+        String dataNodeRcaConf = Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca.conf").toString();
+
+        RcaConf rcaConf = new RcaConf(dataNodeRcaConf);
+        SubscriptionManager subscriptionManager =
+                new SubscriptionManager(new GRPCConnectionManager(false));
+        subscriptionManager.setCurrentLocus(rcaConf.getTagMap().get("locus"));
+
+        RCASchedulerTask rcaSchedulerTaskData =
+                new ResourceHeatMapGraphTest.RcaSchedulerTaskT(connectedComponents, rcaConf,
+                        subscriptionManager);
         AllMetrics.NodeRole nodeRole = AllMetrics.NodeRole.DATA;
         RcaTestHelper.setMyIp("192.168.0.1", nodeRole);
-        rcaSchedulerTask.run();
+        rcaSchedulerTaskData.run();
+
+        System.out.println("Now for the MAster RCA.");
+        String masterNodeRcaConf =
+                Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca_elected_master.conf").toString();
+        RcaConf rcaConf2 = new RcaConf(masterNodeRcaConf);
+        SubscriptionManager subscriptionManager2 =
+                new SubscriptionManager(new GRPCConnectionManager(false));
+        subscriptionManager2.setCurrentLocus(rcaConf2.getTagMap().get("locus"));
+        RCASchedulerTask rcaSchedulerTaskMaster =
+                new ResourceHeatMapGraphTest.RcaSchedulerTaskT(connectedComponents, rcaConf2,
+                        subscriptionManager2);
+        AllMetrics.NodeRole nodeRole2 = AllMetrics.NodeRole.ELECTED_MASTER;
+        RcaTestHelper.setMyIp("192.168.0.2", nodeRole2);
+        rcaSchedulerTaskMaster.run();
     }
 }

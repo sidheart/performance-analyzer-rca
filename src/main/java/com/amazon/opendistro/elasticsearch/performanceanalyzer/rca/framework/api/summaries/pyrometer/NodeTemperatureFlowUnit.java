@@ -21,13 +21,13 @@ import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.flow_units.ResourceFlowUnit;
 
 public class NodeTemperatureFlowUnit extends ResourceFlowUnit {
-    private final NodeTemperatureSummary nodeSummary;
+    private final NodeTemperatureSummary nodeTemperatureSummary;
 
     public NodeTemperatureFlowUnit(long timeStamp, ResourceContext context,
                                    NodeTemperatureSummary resourceSummary,
                                    boolean persistSummary) {
         super(timeStamp, context, resourceSummary, persistSummary);
-        this.nodeSummary = resourceSummary;
+        this.nodeTemperatureSummary = resourceSummary;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class NodeTemperatureFlowUnit extends ResourceFlowUnit {
         builder.setGraphNode(graphNode);
         builder.setEsNode(esNode);
         builder.setTimeStamp(System.currentTimeMillis());
-        nodeSummary.buildSummaryMessageAndAddToFlowUnit(builder);
+        nodeTemperatureSummary.buildSummaryMessageAndAddToFlowUnit(builder);
         return builder.build();
     }
 
@@ -46,4 +46,9 @@ public class NodeTemperatureFlowUnit extends ResourceFlowUnit {
         return new NodeTemperatureFlowUnit(message.getTimeStamp(), new ResourceContext(Resources.State.UNKNOWN),
                 nodeTemperatureSummary, false);
     }
+
+    public NodeTemperatureSummary getNodeTemperatureSummary() {
+        return nodeTemperatureSummary;
+    }
+
 }

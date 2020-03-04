@@ -15,14 +15,6 @@
 
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store;
 
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.summaries.pyrometer.DimensionHeatFlowUnit;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.ShardStore;
-import static com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.util.RcaConsts.RcaTagConstants.LOCUS_DATA_MASTER_NODE;
-import static com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.util.RcaConsts.RcaTagConstants.LOCUS_DATA_NODE;
-import static com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.util.RcaConsts.RcaTagConstants.LOCUS_MASTER_NODE;
-import static com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.util.RcaConsts.RcaTagConstants.TAG_AGGREGATE_UPSTREAM;
-import static com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.util.RcaConsts.RcaTagConstants.TAG_LOCUS;
-
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.AnalysisGraph;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.Metric;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.Rca;
@@ -31,6 +23,12 @@ import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.metrics.GC_Collection_Time;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.metrics.Heap_Max;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.metrics.Heap_Used;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.ShardStore;
+import static com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.util.RcaConsts.RcaTagConstants.LOCUS_DATA_MASTER_NODE;
+import static com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.util.RcaConsts.RcaTagConstants.LOCUS_DATA_NODE;
+import static com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.util.RcaConsts.RcaTagConstants.LOCUS_MASTER_NODE;
+import static com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.util.RcaConsts.RcaTagConstants.TAG_AGGREGATE_UPSTREAM;
+import static com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.util.RcaConsts.RcaTagConstants.TAG_LOCUS;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.byShard.AvgCpuUtilByShards;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.byShard.CpuUtilByShard;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.metric.pyrometer.capacity.NodeLevelUsageForCpu;
@@ -39,6 +37,7 @@ import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.rca.Hig
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.rca.HotNodeRca;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.rca.hotheap.HighHeapUsageOldGenRca;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.rca.hotheap.HighHeapUsageYoungGenRca;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.rca.pyrometer.ClusterHeatRca;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.rca.pyrometer.CpuUtilHeatRca;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.rca.pyrometer.NodeHeatRca;
 import java.util.Arrays;
@@ -113,5 +112,9 @@ public class DummyGraph extends AnalysisGraph {
         NodeHeatRca nodeHeatRca = new NodeHeatRca(cpuUtilHeat);
         nodeHeatRca.addTag(TAG_LOCUS, LOCUS_DATA_NODE);
         nodeHeatRca.addAllUpstreams(Arrays.asList(cpuUtilHeat));
+
+        ClusterHeatRca clusterHeatRca = new ClusterHeatRca(nodeHeatRca);
+        clusterHeatRca.addTag(TAG_LOCUS, LOCUS_MASTER_NODE);
+        clusterHeatRca.addAllUpstreams(Arrays.asList(nodeHeatRca));
     }
 }

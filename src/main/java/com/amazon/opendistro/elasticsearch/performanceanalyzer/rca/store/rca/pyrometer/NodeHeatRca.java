@@ -15,22 +15,25 @@
 
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.store.rca.pyrometer;
 
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.Rca;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.Resources;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.contexts.ResourceContext;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.flow_units.ResourceFlowUnit;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.summaries.pyrometer.DimensionHeatFlowUnit;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.summaries.pyrometer.NodeTemperatureFlowUnit;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.summaries.pyrometer.NodeTemperatureSummary;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.profile.level.NodeDimensionProfile;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.profile.level.FullNodeProfile;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.heat.profile.level.NodeDimensionProfile;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.scheduler.FlowUnitOperationArgWrapper;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.reader.ClusterDetailsEventProcessor;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-public class NodeHeatRca extends Rca<ResourceFlowUnit> {
+public class NodeHeatRca extends Rca<NodeTemperatureFlowUnit> {
     private final CpuUtilHeatRca cpuUtilHeatRca;
+    private static final Logger LOG = LogManager.getLogger(NodeHeatRca.class);
     //private final HeapAllocHeatRca heapAllocHeatRca;
 
     public NodeHeatRca(CpuUtilHeatRca cpuUtilHeatRca) {
@@ -41,7 +44,14 @@ public class NodeHeatRca extends Rca<ResourceFlowUnit> {
 
     @Override
     public void generateFlowUnitListFromWire(FlowUnitOperationArgWrapper args) {
-        // This should not be required
+        final List<FlowUnitMessage> flowUnitMessages =
+                args.getWireHopper().readFromWire(args.getNode());
+        List<NodeTemperatureFlowUnit> flowUnitList = new ArrayList<>();
+        LOG.debug("rca: Executing fromWire: {}", this.getClass().getSimpleName());
+        for (FlowUnitMessage flowUnitMessage : flowUnitMessages) {
+            flowUnitList.add(NodeTemperatureFlowUnit.buildFlowUnitFromWrapper(flowUnitMessage));
+        }
+        setFlowUnits(flowUnitList);
     }
 
     /**
@@ -53,7 +63,7 @@ public class NodeHeatRca extends Rca<ResourceFlowUnit> {
      * @return
      */
     @Override
-    public ResourceFlowUnit operate() {
+    public NodeTemperatureFlowUnit operate() {
         List<DimensionHeatFlowUnit> cpuFlowUnits = cpuUtilHeatRca.getFlowUnits();
         // EachResourceLevelHeat RCA should generate a one @{code DimensionalFlowUnit}.
         if (cpuFlowUnits.size() != 1) {
