@@ -542,4 +542,21 @@ task generateLoad {
     }
 }
 
+task runRally {
+    dependsOn(enablePaAndRca, runPerftop)
 
+    doLast {
+        String rallyTrack='pmc'
+
+        String[] esrally = ['docker', 'run', '--network=host', 'elastic/rally',
+                                '--track=' + rallyTrack, '--test-mode', '--pipeline=benchmark-only',
+                '--target-hosts=localhost:9200']
+
+        String wdir = Paths.get(getProjectDir().getAbsolutePath(), 'src', 'test', 'resources')
+                .toString()
+        while (true) {
+            runCommand(esrally, null, wdir, true)
+            Thread.sleep(1000)
+        }
+    }
+}
