@@ -556,6 +556,8 @@ task runRally {
                 .toString()
         while (true) {
             runCommand(esrally, null, wdir, true)
+            println('Get all RCAs using:')
+            println('curl localhost:9600/_opendistro/_performanceanalyzer/rca?all | python -m json.tool')
             Thread.sleep(1000)
         }
     }

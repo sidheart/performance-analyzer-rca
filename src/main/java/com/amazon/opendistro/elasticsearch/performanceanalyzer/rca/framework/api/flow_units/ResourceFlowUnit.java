@@ -20,7 +20,7 @@ import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.persist.JooqFieldValue;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.summaries.HotNodeSummary;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.summaries.HotResourceSummary;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.summaries.pyrometer.NodeTemperatureFlowUnit;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.flow_units.temperature.CompactNodeTemperatureFlowUnit;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.GenericFlowUnit;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.GenericSummary;
 
@@ -132,7 +132,7 @@ public class ResourceFlowUnit extends GenericFlowUnit {
       } else if (message.getSummaryOneofCase().getNumber()
               == FlowUnitMessage.SummaryOneofCase.NODETEMPERATURESUMMARY.getNumber()
               && message.hasNodeTemperatureSummary()) {
-        return NodeTemperatureFlowUnit.buildFlowUnitFromWrapper(message);
+        return CompactNodeTemperatureFlowUnit.buildFlowUnitFromWrapper(message);
       }
       return new ResourceFlowUnit(message.getTimeStamp(), newContext, newSummary);
     } else {
