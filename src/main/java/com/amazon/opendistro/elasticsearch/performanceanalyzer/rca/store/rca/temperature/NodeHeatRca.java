@@ -19,11 +19,11 @@ import com.amazon.opendistro.elasticsearch.performanceanalyzer.grpc.FlowUnitMess
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.Rca;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.Resources;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.contexts.ResourceContext;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.flow_units.temperature.DetailedNodeTemperatureFlowUnit;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.flow_units.temperature.CompactNodeTemperatureFlowUnit;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.flow_units.temperature.DetailedNodeTemperatureFlowUnit;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.summaries.temperature.CompactNodeTemperatureSummary;
-import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.temperature.profile.level.FullNodeProfile;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.summaries.temperature.DetailedNodeTemperatureSummary;
+import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.temperature.profile.level.FullNodeProfile;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.scheduler.FlowUnitOperationArgWrapper;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.reader.ClusterDetailsEventProcessor;
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public class NodeHeatRca extends Rca<CompactNodeTemperatureFlowUnit> {
     /**
      * The goal of the NodeHeatRca is to build a node level temperature profile.
      *
-     * This is done by accumulating the {@code DimensionalFlowUnit} s it receives from the
+     * <p>This is done by accumulating the {@code DimensionalFlowUnit} s it receives from the
      * individual ResourceHeatRcas. The temperature profile build here is sent to the elected master
      * node where this is used to calculate the cluster temperature profile.
      * @return

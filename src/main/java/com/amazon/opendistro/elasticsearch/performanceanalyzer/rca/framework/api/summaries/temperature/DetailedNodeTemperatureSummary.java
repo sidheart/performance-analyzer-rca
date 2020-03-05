@@ -24,7 +24,6 @@ import com.google.protobuf.GeneratedMessageV3;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.jooq.Field;
 import org.jooq.impl.DSL;
@@ -66,10 +65,10 @@ public class DetailedNodeTemperatureSummary extends GenericSummary {
 
     @Override
     public String toString() {
-        return "NodeDimensionProfile{" +
-                "profileForDimension=" + profileForDimension +
-                ", zoneProfiles=" + Arrays.toString(zoneProfiles) +
-                '}';
+        return "NodeDimensionProfile{"
+                + "profileForDimension=" + profileForDimension
+                + ", zoneProfiles=" + Arrays.toString(zoneProfiles)
+                + '}';
     }
 
     public TemperatureVector.NormalizedValue getMeanTemperature() {
@@ -133,11 +132,6 @@ public class DetailedNodeTemperatureSummary extends GenericSummary {
         ZoneProfileSummary(HeatZoneAssigner.Zone myZone) {
             this.myZone = myZone;
             shardProfiles = new ArrayList<>();
-        }
-
-        @Nonnull
-        public List<ShardProfile> getOrderedShardProfiles() {
-            return null;
         }
 
         void addShard(ShardProfile shard) {

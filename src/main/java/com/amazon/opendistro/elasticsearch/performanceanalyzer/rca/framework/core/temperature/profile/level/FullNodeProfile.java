@@ -17,6 +17,8 @@ package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.co
 
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.summaries.temperature.DetailedNodeTemperatureSummary;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.temperature.TemperatureVector;
+import java.util.Arrays;
+import java.util.List;
 
 public class FullNodeProfile {
     /**
@@ -46,8 +48,8 @@ public class FullNodeProfile {
         return temperatureVector;
     }
 
-    public DetailedNodeTemperatureSummary[] getNodeDimensionProfiles() {
-        return nodeDimensionProfiles;
+    public List<DetailedNodeTemperatureSummary> getNodeDimensionProfiles() {
+        return Arrays.asList(nodeDimensionProfiles);
     }
 
     public String getNodeId() {

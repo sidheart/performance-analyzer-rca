@@ -49,8 +49,8 @@ public class ShardProfile {
                                            TemperatureVector.NormalizedValue value) {
         TemperatureVector.NormalizedValue oldValue = getHeatInDimension(dimension);
         if (oldValue != null) {
-            String err = String.format("Trying to update the temperature along dimension '%s' of " +
-                    "shard '%s' twice. OldValue: '%s', newValue: '%s'", dimension, toString(),
+            String err = String.format("Trying to update the temperature along dimension '%s' of "
+                    + "shard '%s' twice. OldValue: '%s', newValue: '%s'", dimension, toString(),
                     oldValue, value);
             throw new IllegalArgumentException(err);
         }
