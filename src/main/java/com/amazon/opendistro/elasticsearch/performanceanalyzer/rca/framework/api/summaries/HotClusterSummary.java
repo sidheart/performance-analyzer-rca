@@ -18,6 +18,7 @@ package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.ap
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.api.persist.JooqFieldValue;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core.GenericSummary;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.protobuf.GeneratedMessageV3;
@@ -68,14 +69,6 @@ public class HotClusterSummary extends GenericSummary {
 
   @Override
   public void buildSummaryMessageAndAddToFlowUnit(FlowUnitMessage.Builder messageBuilder) {
-  }
-
-  public int getNumOfNodes() {
-    return numOfNodes;
-  }
-
-  public int getNumOfUnhealthyNodes() {
-    return numOfUnhealthyNodes;
   }
 
   @Override

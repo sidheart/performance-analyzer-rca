@@ -21,7 +21,6 @@ import com.amazon.opendistro.elasticsearch.performanceanalyzer.grpc.PANetworking
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.grpc.ResourceType;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.grpc.ResourceType.ResourceTypeOneofCase;
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.grpc.ResourceTypeOptions;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.ProtocolMessageEnum;
 import javax.annotation.Nullable;
 import org.apache.logging.log4j.LogManager;
@@ -33,16 +32,13 @@ import org.apache.logging.log4j.Logger;
 public class ResourceTypeUtil {
   private static final Logger LOG = LogManager.getLogger(ResourceTypeUtil.class);
 
-  static final String UNKNOWN_RESOURCE_TYPE_NAME = "unknown resource type";
-  static final String UNKNOWN_RESOURCE_TYPE_UNIT = "unknown resource unit type";
-
   /**
    * Read the resourceType name from the ResourceType object
    * @param resourceType grpc ResourceType object
    * @return resource type name
    */
   public static String getResourceTypeName(ResourceType resourceType) {
-    String resourceName = UNKNOWN_RESOURCE_TYPE_NAME;
+    String resourceName = "unknown resource type";
     ResourceTypeOptions resourceTypeOptions = ResourceTypeUtil.getResourceTypeOptions(resourceType);
     if (resourceTypeOptions != null) {
       resourceName = resourceTypeOptions.getResourceTypeName();
@@ -56,7 +52,7 @@ public class ResourceTypeUtil {
    * @return resource unit type
    */
   public static String getResourceTypeUnit(ResourceType resourceType) {
-    String resourceName = UNKNOWN_RESOURCE_TYPE_UNIT;
+    String resourceName = "unknown resource unit type";
     ResourceTypeOptions resourceTypeOptions = ResourceTypeUtil.getResourceTypeOptions(resourceType);
     if (resourceTypeOptions != null) {
       resourceName = resourceTypeOptions.getResourceTypeUnit();
@@ -84,8 +80,7 @@ public class ResourceTypeUtil {
         .getExtension(PANetworking.resourceTypeOptions);
   }
 
-  @VisibleForTesting
-  static ResourceTypeOptions getResourceTypeOptions(ProtocolMessageEnum resourceEnum) {
+  private static ResourceTypeOptions getResourceTypeOptions(ProtocolMessageEnum resourceEnum) {
     return resourceEnum.getValueDescriptor().getOptions()
         .getExtension(PANetworking.resourceTypeOptions);
   }

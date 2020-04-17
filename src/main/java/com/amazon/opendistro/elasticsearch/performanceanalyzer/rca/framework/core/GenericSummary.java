@@ -16,7 +16,6 @@
 package com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.framework.core;
 
 import com.amazon.opendistro.elasticsearch.performanceanalyzer.grpc.FlowUnitMessage;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.protobuf.GeneratedMessageV3;
@@ -65,8 +64,7 @@ public abstract class GenericSummary {
    * convert summary list into a json array
    * @return JsonArray object
    */
-  @VisibleForTesting
-  public JsonArray nestedSummaryListToJson() {
+  protected JsonArray nestedSummaryListToJson() {
     JsonArray nestedSummaryArray = new JsonArray();
     if (!this.nestedSummaryList.isEmpty()) {
       this.nestedSummaryList.forEach(

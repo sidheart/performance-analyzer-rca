@@ -72,7 +72,8 @@ public class TopConsumerSummary extends GenericSummary {
   }
 
   public static TopConsumerSummary buildTopConsumerSummaryFromMessage(TopConsumerSummaryMessage message) {
-    return new TopConsumerSummary(message.getName(), message.getValue());
+    TopConsumerSummary newSummary = new TopConsumerSummary(message.getName(), message.getValue());
+    return newSummary;
   }
 
   @Override
