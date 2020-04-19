@@ -58,7 +58,7 @@ public class FileGCTest {
   @Before
   public void init() throws IOException {
     String cwd = System.getProperty("user.dir");
-    testLocation = Paths.get(cwd, "src", "test", "resources", "tmp", "file_rotate");
+    testLocation = Paths.get(cwd, "src", "test", "resources", "tmp", "file_gc");
     Files.createDirectories(testLocation);
     FileUtils.cleanDirectory(testLocation.toFile());
   }
