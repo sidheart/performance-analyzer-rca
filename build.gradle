@@ -525,7 +525,7 @@ task unzipPerfTop(type: Copy) {
 
 task enablePa(type: Exec) {
     dependsOn(waitForES)
-    doFirst {
+    doFirst { // This sleep helps avoid Connection refused errors on port 9200
         sleep(5000)
     }
     commandLine('curl', 'localhost:9200/_opendistro/_performanceanalyzer/cluster/config', '-H',
