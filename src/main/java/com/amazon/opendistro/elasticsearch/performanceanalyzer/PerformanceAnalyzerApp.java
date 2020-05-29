@@ -61,6 +61,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 // Nightly test
+// More nightly testing
 public class PerformanceAnalyzerApp {
 
   private static final int EXCEPTION_QUEUE_LENGTH = 1;
