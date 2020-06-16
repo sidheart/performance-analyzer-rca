@@ -528,12 +528,12 @@ task unzipPerfTop(type: Copy) {
 task enablePa(type: Exec) {
     dependsOn(waitForES)
     doFirst { // Ensures we don't get a Connection refused error on port 9200 from Elasticsearch
-        sleep(5000)
+        sleep(10000)
     }
     commandLine('curl', 'localhost:9200/_opendistro/_performanceanalyzer/cluster/config', '-H',
             'Content-Type: application/json', '-d', '{"enabled": true}')
     doLast { // Ensures PA is enabled before subsequent tasks rely on it
-        sleep(5000)
+        sleep(10000)
     }
 }
 
